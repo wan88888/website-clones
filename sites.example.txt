@@ -1,0 +1,9 @@
+# Batch-clone manifest — copy to sites.txt and edit.
+# Format:  <site-name>  [target-url ...]
+# Blank lines and lines starting with # are ignored.
+#
+# The site-name becomes the directory under sites/.
+# Any URLs are recorded in the site's CLONE_TARGETS.txt for the AI agent.
+
+acme         https://acme.example.com
+blog-clone   https://blog.example.com  https://blog.example.com/about

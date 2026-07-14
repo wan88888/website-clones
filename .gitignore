@@ -1,0 +1,16 @@
+# Nested repos — managed separately; do not track as workspace content
+ai-website-cloner-template/
+sites/
+
+# Local batch manifest (keep sites.example.txt tracked)
+sites.txt
+
+# OS / editor / browser MCP noise
+.DS_Store
+*.swp
+.playwright-mcp/
+example-*.png
+clone-*.png
+
+# Accidental installs at workspace root
+node_modules/

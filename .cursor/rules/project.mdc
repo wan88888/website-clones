@@ -1,0 +1,62 @@
+---
+description: website-clones workspace conventions (generator model)
+alwaysApply: true
+---
+
+# website-clones workspace
+
+This workspace clones websites using a **generator** model:
+
+- `ai-website-cloner-template/` — the GENERATOR. Holds upstream agent tooling and
+  the base Next.js scaffold. Tracks official updates — **do not edit it**.
+- `sites/<name>/` — a generated site (its own git repo). Website project only:
+  runnable Next.js app + allowed clone artifacts. Never generator tooling.
+  Docker/ops files only if created with `--with-docker`.
+- `scripts/` — workspace automation (new-site, batch-clone, update-*, build-clone-command).
+- `.cursor/` — workspace Cursor config (`/clone-website`, rules, Playwright MCP).
+  Customize `.cursor/commands/clone-website.override.md`; rebuild with
+  `scripts/build-clone-command.sh` (never hand-edit `clone-website.md`).
+
+## What may live in `sites/<name>/`
+
+**Allowed (website project):**
+- `src/`, `public/`, `package.json`, lockfile, build configs
+- `docs/research/`, `docs/design-references/` — clone specs & screenshots
+- `scripts/download-assets.mjs` — one-off asset download helper during clone
+- Docker files only when scaffolded with `--with-docker`
+- `CLONE_TARGETS.txt`, `.generator-version`
+
+**Forbidden (generator / agent tooling):**
+- `.claude/`, `.cursor/`, `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`
+- `sync-agent-rules.sh`, `sync-skills.mjs`, and other multi-platform sync files
+
+## Cloning a website
+
+1. `scripts/new-site.sh <name> <url>` (requires Node.js 24+; see root `.nvmrc` / `package.json` engines)
+2. Open / work in `sites/<name>/`
+3. Run `/clone-website <url>` — skill paths are **relative to the site root**
+4. Browser automation: Playwright MCP in `.cursor/mcp.json` (pinned)
+
+Only clone sites you own or are authorized to reproduce. No phishing or brand impersonation.
+
+## Website tech stack (inside each site)
+
+- Next.js 16 (App Router, React 19, TypeScript strict) — breaking changes;
+  consult `node_modules/next/dist/docs/` before writing code
+- shadcn/ui (Radix primitives, Tailwind CSS v4, `cn()` utility)
+- Tailwind CSS v4 with oklch design tokens; Lucide React icons
+
+## Commands (run inside a site)
+
+- `npm run dev` / `npm run build` / `npm run lint` / `npm run typecheck` / `npm run check`
+
+## Code style
+
+- TypeScript strict, no `any`; named exports; PascalCase components, camelCase utils
+- Tailwind utility classes, no inline styles; 2-space indent; mobile-first responsive
+
+## Design principles
+
+- Pixel-perfect emulation — match spacing, colors, typography exactly
+- Real content — use the target's actual text and assets, not placeholders
+- Match 1:1 first, customize later
