@@ -5,6 +5,22 @@
 当作生成器，`sites/` 存放生成出来的网站项目。工作区根目录自身也是一个 git 仓库，
 只跟踪脚本与 Cursor 配置，不跟踪模板与各站点（它们各自有独立仓库）。
 
+## 冷启动
+
+```bash
+# 1. Node 24+（nvm / fnm / asdf 任选）
+nvm install 24 && nvm use   # 或: fnm use / asdf shell nodejs 24
+
+# 2. 首次拉取生成器（之后用 update-template 更新）
+scripts/bootstrap-template.sh
+# 等价: npm run bootstrap
+
+# 3. 建站并克隆（见下文）
+scripts/new-site.sh acme https://acme.example.com
+```
+
+`update-template.sh` 在生成器不存在时也会自动 bootstrap。
+
 ## 目录结构
 
 ```
@@ -13,8 +29,8 @@ website-clones/                   # 工作区 git（脚本 + .cursor + README + 
 ├── sites/                        # 各站点（各自独立 git）：网站项目代码
 ├── scripts/                      # 自动化脚本
 ├── .cursor/                      # Cursor：/clone-website、规则、Playwright MCP
-├── .nvmrc                        # Node 24
-├── package.json                  # engines: node >=24（工作区脚本要求）
+├── .nvmrc                        # nvm/fnm/asdf：默认切到 Node 24
+├── package.json                  # engines: node >=24（声明最低版本）
 ├── sites.example.txt
 └── README.md
 ```
@@ -34,20 +50,25 @@ website-clones/                   # 工作区 git（脚本 + .cursor + README + 
 ## Node.js 版本
 
 - **要求：Node.js 24+**（与官方模板 `engines` 一致）
-- 工作区根目录：`.nvmrc` → `24`，`package.json` → `"engines": { "node": ">=24" }`
-- 各站点脚手架自带 `.nvmrc`
-- `new-site` / `batch-clone` / `install-deps` 等脚本会强制检查版本；偏低时尝试 `nvm use 24`
+- 两处声明分工不同，都需要保留：
+  - **`package.json` `engines`**：声明最低版本（`>=24`）；npm 等可校验，**不会**自动切版本
+  - **`.nvmrc`**：给 nvm / fnm / asdf 等用，进目录时切到具体版本（`24`）
+- 工作区根目录与各站点脚手架都带 `.nvmrc`
+- 脚本在版本偏低时会按顺序尝试：**nvm → fnm → asdf**
 
 ```bash
-nvm install 24
-nvm alias default 24
-node -v   # 应显示 v24.x
+nvm install 24 && nvm use          # 读取 .nvmrc
+# 或: fnm install && fnm use
+# 或: asdf install nodejs 24.x.x && asdf shell nodejs 24.x.x
+node -v                            # 应显示 v24.x
 ```
 
 ## 在 Cursor 中克隆网站
 
 `/clone-website` 由两部分合成（见下文「Cursor 命令同步」）。
-浏览器自动化使用钉死版本的 Playwright MCP（`.cursor/playwright-mcp.version`）。
+浏览器自动化使用钉死版本的 Playwright MCP：
+改 `.cursor/playwright-mcp.version`，再跑 `scripts/build-clone-command.sh`
+（会同步写入 `.cursor/mcp.json`）。
 
 **首次使用：** Cursor 设置 → MCP → 启用项目级 `playwright`。
 
@@ -98,8 +119,10 @@ scripts/site-status.sh
 | `.cursor/commands/clone-website.md` | **自动生成**：override + upstream，勿手改 |
 
 ```bash
-scripts/update-template.sh          # 拉生成器 → 刷新 upstream → 重建 clone-website.md
-scripts/build-clone-command.sh      # 仅重建命令（改完 override 后手动跑）
+scripts/bootstrap-template.sh       # 首次克隆生成器（幂等）
+scripts/update-template.sh          # 拉生成器 → 刷新 upstream → 重建 clone-website.md + 同步 MCP
+scripts/build-clone-command.sh      # 仅重建命令 + 同步 Playwright pin（改完 override / 升 pin 后跑）
+scripts/check.sh                    # shellcheck + pin / clone-website.md 一致性（需 brew install shellcheck）
 ```
 
 `update-template.sh` **不会**覆盖 `clone-website.override.md`，因此本地定制在官方更新后仍然保留。
@@ -134,15 +157,17 @@ scripts/update-sites.sh --install       # 同步 deps 后安装
 
 | 脚本 | 作用 |
 | ---- | ---- |
+| `scripts/bootstrap-template.sh` | 首次克隆生成器（幂等） |
 | `scripts/new-site.sh … [--install] [--with-docker]` | 创建站点（Docker 可选） |
 | `scripts/batch-clone.sh … [--install] [--with-docker]` | 批量建站 + 后续清单 |
 | `scripts/site-status.sh` | 状态与下一步 |
 | `scripts/install-deps.sh` / `prune-deps.sh` | 按需装 / 清依赖 |
-| `scripts/update-template.sh` | 更新生成器并重建命令 |
+| `scripts/update-template.sh` | 更新生成器并重建命令（缺则 bootstrap） |
 | `scripts/update-sites.sh … [--deps] [--docker] [--install]` | 同步配置 |
-| `scripts/build-clone-command.sh` | 从 override + upstream 重建命令 |
+| `scripts/build-clone-command.sh` | 重建 `/clone-website` + 同步 Playwright MCP |
+| `scripts/check.sh` | 最小验收（shellcheck + pins + clone-website.md） |
 
 ## 说明
 
 - `SITE_INCLUDE` / `SITE_INCLUDE_DOCKER` / `MANAGED_FILES` / `DEPS_FILES` 定义在 `scripts/lib.sh`
-- 路径可用 `TEMPLATE_DIR` / `SITES_DIR` 覆盖
+- 路径可用 `TEMPLATE_DIR` / `SITES_DIR` / `TEMPLATE_REPO` / `TEMPLATE_BRANCH` 覆盖

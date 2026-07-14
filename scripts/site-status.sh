@@ -7,6 +7,7 @@
 #   (no site args)   report every site under sites/
 #   --check-build    run `npm run build` for sites that have node_modules (slow)
 
+# shellcheck source=lib.sh
 source "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
 
 CHECK_BUILD=0

@@ -12,10 +12,12 @@ This workspace clones websites using a **generator** model:
 - `sites/<name>/` — a generated site (its own git repo). Website project only:
   runnable Next.js app + allowed clone artifacts. Never generator tooling.
   Docker/ops files only if created with `--with-docker`.
-- `scripts/` — workspace automation (new-site, batch-clone, update-*, build-clone-command).
+- `scripts/` — workspace automation (bootstrap, new-site, batch-clone, update-*,
+  build-clone-command, check).
 - `.cursor/` — workspace Cursor config (`/clone-website`, rules, Playwright MCP).
   Customize `.cursor/commands/clone-website.override.md`; rebuild with
   `scripts/build-clone-command.sh` (never hand-edit `clone-website.md`).
+  Pin Playwright in `.cursor/playwright-mcp.version` (synced into `mcp.json`).
 
 ## What may live in `sites/<name>/`
 
@@ -32,10 +34,12 @@ This workspace clones websites using a **generator** model:
 
 ## Cloning a website
 
-1. `scripts/new-site.sh <name> <url>` (requires Node.js 24+; see root `.nvmrc` / `package.json` engines)
-2. Open / work in `sites/<name>/`
-3. Run `/clone-website <url>` — skill paths are **relative to the site root**
-4. Browser automation: Playwright MCP in `.cursor/mcp.json` (pinned)
+1. `scripts/bootstrap-template.sh` once (if generator missing)
+2. `scripts/new-site.sh <name> <url>` (requires Node.js 24+; see root `.nvmrc` /
+   `package.json` engines — scripts try nvm → fnm → asdf)
+3. Open / work in `sites/<name>/`
+4. Run `/clone-website <url>` — skill paths are **relative to the site root**
+5. Browser automation: Playwright MCP in `.cursor/mcp.json` (from version pin)
 
 Only clone sites you own or are authorized to reproduce. No phishing or brand impersonation.
 

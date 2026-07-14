@@ -10,6 +10,7 @@
 #
 # Safe for unused sites: reinstall later with scripts/install-deps.sh.
 
+# shellcheck source=lib.sh
 source "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
 
 ALSO_NEXT=0

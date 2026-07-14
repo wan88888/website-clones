@@ -7,6 +7,7 @@
 # Copies website code only into sites/<site-name>. Docker/ops files are omitted
 # unless --with-docker is passed. Agent tooling is never copied.
 
+# shellcheck source=lib.sh
 source "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
 
 INSTALL=0

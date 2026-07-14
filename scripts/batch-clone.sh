@@ -16,6 +16,7 @@
 # the rest of the batch. Afterward prints a checklist of remaining /clone-website
 # steps (scaffolding alone is not a finished clone).
 
+# shellcheck source=lib.sh
 source "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
 
 EXTRA_FLAGS=()

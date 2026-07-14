@@ -6,6 +6,7 @@
     "node": ">=24"
   },
   "scripts": {
+    "bootstrap": "bash scripts/bootstrap-template.sh",
     "new-site": "bash scripts/new-site.sh",
     "batch-clone": "bash scripts/batch-clone.sh",
     "site-status": "bash scripts/site-status.sh",
@@ -13,6 +14,7 @@
     "prune-deps": "bash scripts/prune-deps.sh",
     "update-template": "bash scripts/update-template.sh",
     "update-sites": "bash scripts/update-sites.sh",
-    "build-clone-command": "bash scripts/build-clone-command.sh"
+    "build-clone-command": "bash scripts/build-clone-command.sh",
+    "check": "bash scripts/check.sh"
   }
 }

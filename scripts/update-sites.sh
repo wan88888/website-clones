@@ -16,6 +16,7 @@
 # sites that already contain a Dockerfile; --docker forces them onto all targets.
 # Website sources (src/, public/, docs/) are never touched.
 
+# shellcheck source=lib.sh
 source "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
 
 DO_TEMPLATE=0

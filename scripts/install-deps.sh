@@ -12,6 +12,7 @@
 # Prefer this over `new-site.sh --install` / `batch-clone.sh --install` when you
 # scaffold many sites but only develop a few at a time.
 
+# shellcheck source=lib.sh
 source "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
 
 USE_CI=0

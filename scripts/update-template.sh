@@ -4,15 +4,22 @@
 # Usage:
 #   scripts/update-template.sh
 #
+# If the generator is missing, clones it first (same as bootstrap-template.sh).
 # Fetches and fast-forwards the tracked template repo from its origin
 # (GitHub). Refuses to proceed if you have local modifications in the
 # template, keeping it a clean mirror of upstream.
 #
-# After pull, refreshes `.cursor/commands/clone-website.upstream.md` and
-# rebuilds the workspace-adapted `/clone-website` command (does NOT overwrite
-# `.cursor/rules/` or `.cursor/mcp.json`).
+# After pull, refreshes `.cursor/commands/clone-website.upstream.md`, rebuilds
+# `/clone-website`, and syncs Playwright MCP pin → `.cursor/mcp.json`.
+# Does NOT overwrite `.cursor/rules/` or `clone-website.override.md`.
 
+# shellcheck source=lib.sh
 source "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
+
+if [ ! -d "$TEMPLATE_DIR/.git" ]; then
+  info "Generator missing — bootstrapping first..."
+  bootstrap_template
+fi
 
 require_template
 
